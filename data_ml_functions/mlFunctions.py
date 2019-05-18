@@ -26,7 +26,8 @@ from keras.layers import Dense,Input,merge,Flatten,Dropout,LSTM
 from keras.models import Sequential,Model
 from keras.preprocessing import image
 from keras.utils.np_utils import to_categorical
-
+#from keras.layers import Concatenate
+from keras.layers.merge import concatenate
 import numpy as np
 
 from .DenseNet import densenet
@@ -43,30 +44,67 @@ def get_cnn_model(params):
     """
     
     input_tensor = Input(shape=(params.target_img_size[0],params.target_img_size[1],params.num_channels))
+ #   baseModel = densenet.DenseNet(input_shape=(params.target_img_size[0], params.target_img_size[1], params.num_channels), include_top=False, input_tensor=input_tensor)
+
     baseModel = densenet.DenseNetImageNet161(input_shape=(params.target_img_size[0], params.target_img_size[1], params.num_channels), include_top=False, input_tensor=input_tensor)
-
+    print(baseModel.summary())
     modelStruct = baseModel.layers[-1].output
-
-    if params.use_metadata:
-        auxiliary_input = Input(shape=(params.metadata_length,), name='aux_input')
-        modelStruct = merge([modelStruct,auxiliary_input],'concat')
-
     modelStruct = Dense(params.cnn_last_layer_length, activation='relu', name='fc1')(modelStruct)
-    modelStruct = Dropout(0.5)(modelStruct)
-    modelStruct = Dense(params.cnn_last_layer_length, activation='relu', name='fc2')(modelStruct)
-    modelStruct = Dropout(0.5)(modelStruct)
+    if params.use_metadata:
+
+        auxiliary_input = Input(shape=(params.metadata_length,), name='aux_input')
+        auxiliary_fcl = Dense(64, activation='relu', name='fc_a1')(auxiliary_input)
+        auxiliary_fcl = Dropout(0.5)(auxiliary_fcl)       
+        modelStruct=concatenate([modelStruct,auxiliary_fcl],axis=-1)
+       # modelStruct = merge([modelStruct,auxiliary_input],'concat')
+
+    # modelStruct = Dense(params.cnn_last_layer_length, activation='relu', name='fc2')(modelStruct)
+    # modelStruct = Dropout(0.5)(modelStruct)
+    # modelStruct = Dense(params.cnn_last_layer_length, activation='relu', name='fc3')(modelStruct)
+    # modelStruct = Dropout(0.5)(modelStruct)
     predictions = Dense(params.num_labels, activation='softmax')(modelStruct)
 
-    if not params.use_metadata:
-        model = Model(input=[baseModel.input], output=predictions)
+    if  not params.use_metadata:
+        model = Model(input=[baseModel.input], outputs=predictions)
     else:
-        model = Model(input=[baseModel.input, auxiliary_input], output=predictions)
+        model = Model(inputs=[baseModel.input, auxiliary_input], outputs=predictions)
 
     for i,layer in enumerate(model.layers):
         layer.trainable = True
 
     return model
+def get_cnn_model_new(params):   
+    """
+    Load base CNN model and add metadata fusion layers if 'use_metadata' is set in params.py
+    :param params: global parameters, used to find location of the dataset and json file
+    :return model: CNN model with or without depending on params
+    """
+    
+    input_tensor = Input(shape=(params.target_img_size[0],params.target_img_size[1],params.num_channels))
+ #   baseModel = densenet.DenseNet(input_shape=(params.target_img_size[0], params.target_img_size[1], params.num_channels), include_top=False, input_tensor=input_tensor)
 
+    baseModel = densenet.DenseNetImageNet161(input_shape=(params.target_img_size[0], params.target_img_size[1], params.num_channels), include_top=False, input_tensor=input_tensor)
+    print(baseModel.summary())
+    modelStruct = baseModel.layers[-1].output
+    modelStruct = Dense(params.cnn_last_layer_length, activation='relu', name='fc1')(modelStruct)
+    if params.use_metadata:
+        visit_input = Input(shape=(24, 26, 7), name='visit_input')
+        visitModel = densenet.DenseNet(input_shape=(24, 26, 7), include_top=False, input_tensor=input_tensor)
+        visit_fcl=baseModel.layers[-1].output
+        visit_fcl = Dense(64, activation='relu', name='fc1_v')(visit_fcl)
+        modelStruct=concatenate([modelStruct,visit_fcl],axis=-1)
+
+    predictions = Dense(params.num_labels, activation='softmax')(modelStruct)
+
+    if  not params.use_metadata:
+        model = Model(input=[baseModel.input], outputs=predictions)
+    else:
+        model = Model(inputs=[baseModel.input, visit_input], outputs=predictions)
+
+    for i,layer in enumerate(model.layers):
+        layer.trainable = True
+
+    return model
 def get_lstm_model(params, codesStats):
     """
     Load LSTM model and add metadata concatenation to input if 'use_metadata' is set in params.py
