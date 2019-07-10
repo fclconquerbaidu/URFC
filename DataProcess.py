@@ -456,6 +456,6 @@ if __name__ == "__main__":
     # data_file='G:/DataSet/UrbanClassification/data/training_data_7_24.pkl'
     # output_folder='G:/DataSet/UrbanClassification/data/train_visit_feature_he'
     # LoadAllVisitFeatures(data_file,output_folder)
-    img_folder=r'G:\DataSet\UrbanClassification\data\train'
+    img_folder=r'G:\DataSet\UrbanClassification\data-multi\train'
     visit_folder=r'G:\DataSet\UrbanClassification\data\npy\train_visit'
     LoadAllTrainData(img_folder,visit_folder)

@@ -3,7 +3,7 @@ from multiprocessing import cpu_count
 
 num_workers = cpu_count()-1
 data_augmentation=False
-use_metadata = True
+use_metadata = False
 visit_feature_folder=r'G:\DataSet\UrbanClassification\data\train_visit_feature_he'
 num_labels =9
 metadata_length = 168
@@ -16,7 +16,7 @@ num_channels = 3
 image_format = 'jpg'
 
 #LEARNING PARAMS
-cnn_adam_learning_rate = 1e-5
+cnn_adam_learning_rate = 1e-4
 cnn_adam_loss = 'categorical_crossentropy'
 
 #DIRECTORIES AND FILES

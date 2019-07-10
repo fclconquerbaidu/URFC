@@ -96,7 +96,7 @@ class URFCBaseline:
         # data_val, label_val=input_load_train_data(img_file_v,visit_file_v, label_v)
         train_generator=InputGenerator_data(img_t, visit_t, label_t,batch_size)
         val_generator = InputGenerator_data(img_v, visit_v, label_v,batch_size)
-
+                        #input_generator
         model = get_cnn_model(self.params)
         #model = make_parallel(model, 4)
         if len(pre_trained_weight_path)>1:
@@ -176,7 +176,7 @@ def train_net(img_folder,visit_folder):
     #pre_trained_weight_path=os.path.join('./checkpoint_track1_unet_all_dynamic_patch512_t/','weights.10.hdf5')
     #pre_trained_weight_path=os.path.join('./checkpoint_track3-unet_all_fixed_classweight_2','weights.80.hdf5')
     #check_folder='./track2-rgb_c-morenew-new'
-    check_folder='./weightchecks/rgb(256)-visit(64)-0517-l5'
+    check_folder='./weightchecks/rgb-256'
     #num_class=3
     #num_class=params.NUM_CATEGORIES
     detector.train_cnn(img_folder,visit_folder,check_folder,pre_trained_weight_path)
@@ -190,15 +190,15 @@ def test_net(data_folder,is_merge=False):
     #pre_trained_weight_path=os.path.join('./checkpoint_track1_unet_all_dynamic_patch512_t/','weights.10.hdf5')
     #pre_trained_weight_path=os.path.join('./checkpoint_track3-unet_all_fixed_classweight_2','weights.80.hdf5')
     #check_folder='./track2-rgb_c-morenew-new'
-    out_folder='./prediction'
+    out_folder='./train_img_features'
     img_folder=os.path.join(data_folder,'train_img')
     visit_folder=os.path.join(data_folder,'train_visit_feature_he')
     detector.test_cnn(img_folder,visit_folder,out_folder,pre_trained_weight_path)
 if __name__ == '__main__':
     # img_folder=r'G:\DataSet\UrbanClassification\data\train_img'
-    #img_folder=r'G:\DataSet\UrbanClassification\data\train'
-    #visit_folder=r'G:\DataSet\UrbanClassification\data\npy\train_visit'
-    #train_net(img_folder,visit_folder)
-    data_folder=r'G:\DataSet\UrbanClassification\data-'
-    test_net(data_folder)
+    img_folder=r'G:\DataSet\UrbanClassification\data-multi\train'
+    visit_folder=r'G:\DataSet\UrbanClassification\data-multi\npy\train_visit'
+    train_net(img_folder,visit_folder)
+    #data_folder=r'G:\DataSet\UrbanClassification\data-'
+    #test_net(data_folder)
   

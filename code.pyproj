@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{12ed038a-e8bc-4f78-a7e2-ebfcc3eb9dd7}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>runBaseline.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+    <InterpreterVersion />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="data_ml_functions\dataFunctions.py" />
+    <Compile Include="data_ml_functions\DenseNet\cifar10.py" />
+    <Compile Include="data_ml_functions\DenseNet\cifar100.py" />
+    <Compile Include="data_ml_functions\DenseNet\densenet.py" />
+    <Compile Include="data_ml_functions\DenseNet\densenet_fast.py" />
+    <Compile Include="data_ml_functions\DenseNet\imagenet_inference.py" />
+    <Compile Include="data_ml_functions\DenseNet\subpixel.py" />
+    <Compile Include="data_ml_functions\DenseNet\tensorflow_backend.py" />
+    <Compile Include="data_ml_functions\DenseNet\theano_backend.py" />
+    <Compile Include="data_ml_functions\DenseNet\weights\weight_translation_121.py" />
+    <Compile Include="data_ml_functions\DenseNet\weights\weight_translation_161.py" />
+    <Compile Include="data_ml_functions\DenseNet\weights\weight_translation_169.py" />
+    <Compile Include="data_ml_functions\DenseNet\__init__.py" />
+    <Compile Include="data_ml_functions\mlFunctions.py" />
+    <Compile Include="data_ml_functions\__init__.py" />
+    <Compile Include="fmowBaseline.py" />
+    <Compile Include="params.py" />
+    <Compile Include="runBaseline.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data_ml_functions\DenseNet\images\accuracy_densenet.JPG" />
+    <Content Include="data_ml_functions\DenseNet\images\cheetah.jpg" />
+    <Content Include="data_ml_functions\DenseNet\images\dense_net.JPG" />
+    <Content Include="data_ml_functions\DenseNet\images\elephant.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="data_ml_functions" />
+    <Folder Include="data_ml_functions\DenseNet" />
+    <Folder Include="data_ml_functions\DenseNet\images" />
+    <Folder Include="data_ml_functions\DenseNet\weights" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>
