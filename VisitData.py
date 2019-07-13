@@ -237,13 +237,13 @@ def Visit2Features(file_path):
 #         processed_=processed_+1
 #         print('processing {} %:'.format(processed_/num_file))
 
-def GenerateVisit2Features(data_folder, out_folder,num_class):
+def GenerateVisit2Features(data_folder, out_folder,num_class, data_csv='',manual_feature_path=''):
     """
     This function is used to generate csv files that contain the visit array features.
     1. all_visit.csv,    2. class_0.csv,    3. class_1.csv,    ...,    10. class_8.csv
     The purpose to seperate them by class is to measure the intra-similarity and inter-otherness of the features.
     """
-    write_csv_files=False
+    write_csv_files=True
     if os.path.exists(out_folder)==0:
         os.mkdir(out_folder)
     if write_csv_files:
@@ -260,23 +260,34 @@ def GenerateVisit2Features(data_folder, out_folder,num_class):
             csv_files.append(csv_file)
             csv_writers.append(csv_writer)
         
-
-    glob_path=os.path.join(data_folder,'*/*.txt')
-    files=glob.glob(glob_path)
+    if data_csv:
+        import pandas as pd
+        files = pd.read_csv(data_csv)
+    else :
+        glob_path=os.path.join(data_folder,'*/*.txt')
+        files=glob.glob(glob_path)
     num_file=len(files)
     processed_=0
     print('there are total {} file:'.format(num_file))
     contains=[]
-    for file in files:
+    count=0
+    for count in range(num_file):
+        if data_csv:
+            file_name=str(files.iloc[count].Id)
+            file_class=int(file_name[-3:])-1
+            pth=os.path.join(manual_feature_path,file_name+'.npy')
+            features=np.load(pth)
         # if processed_!=7301:
         #     processed_+=1
         #     continue
         ####     break
             ####processed_=processed_+1
         #####     continue
-        file_name=os.path.split(file)[-1]
-        file_class=int(file_name[-5:-4])-1
-        features=Visit2Features(file)
+        else:
+            file=files[count]
+            file_name=os.path.split(file)[-1]
+            file_class=int(file_name[-5:-4])-1
+            features=Visit2Features(file)
         if write_csv_files:
             contains=[file_name,file_class]
             contains.extend(features)
@@ -284,7 +295,74 @@ def GenerateVisit2Features(data_folder, out_folder,num_class):
             #####data[0].append(features)
             csv_writers[file_class+1].writerow(contains)
         #####data[file_class+1].append(features)
-        np.save(os.path.join(out_folder,file_name[:-4]+".npy"), features)
+        #np.save(os.path.join(out_folder,file_name[:-4]+".npy"), features)
+        processed_=processed_+1
+        print('processing {} %:'.format(processed_/num_file))
+    if write_csv_files:
+        for i in range(num_class+1):
+            csv_files[i].close()
+
+def GenerateVisitDayFeatures( out_folder,num_class, data_csv='',data_pkl=''):
+    """
+    This function is used to generate csv files that contain the visit array features.
+    1. all_visit.csv,    2. class_0.csv,    3. class_1.csv,    ...,    10. class_8.csv
+    The purpose to seperate them by class is to measure the intra-similarity and inter-otherness of the features.
+    """
+    write_csv_files=True
+    if os.path.exists(out_folder)==0:
+        os.mkdir(out_folder)
+    if write_csv_files:
+        csv_files=[]
+        csv_writers=[]
+        for i in range(num_class+1):
+            if i==0:
+                csv_name='all_visit.csv'
+            else:
+                csv_name='class_'+str(i-1)+'.csv'
+            csv_file=open(os.path.join(out_folder,csv_name),'w',newline='')
+            csv_writer=csv.writer(csv_file)
+            #csv_writer.writerow(['ID','class'])
+            csv_files.append(csv_file)
+            csv_writers.append(csv_writer)
+        
+    if data_csv:
+        import pandas as pd
+        files = pd.read_csv(data_csv)
+        data = pd.read_pickle(data_pkl)
+    else :
+        glob_path=os.path.join(data_folder,'*/*.txt')
+        files=glob.glob(glob_path)
+    num_file=len(files)
+    processed_=0
+    print('there are total {} file:'.format(num_file))
+    contains=[]
+    count=0
+    for count in range(num_file):
+        if data_pkl:
+            file_name=str(files.iloc[count].Id)
+            file_order=int(file_name[:-4])
+            file_class=int(file_name[-3:])-1
+            features=data.iloc[file_order]
+            features=features[1:]
+        # if processed_!=7301:
+        #     processed_+=1
+        #     continue
+        ####     break
+            ####processed_=processed_+1
+        #####     continue
+        else:
+            file=files[count]
+            file_name=os.path.split(file)[-1]
+            file_class=int(file_name[-5:-4])-1
+            features=Visit2Features(file)
+        if write_csv_files:
+            contains=[file_name,file_class]
+            contains.extend(features)
+            csv_writers[0].writerow(contains)
+            #####data[0].append(features)
+            csv_writers[file_class+1].writerow(contains)
+        #####data[file_class+1].append(features)
+        #np.save(os.path.join(out_folder,file_name[:-4]+".npy"), features)
         processed_=processed_+1
         print('processing {} %:'.format(processed_/num_file))
     if write_csv_files:
@@ -495,9 +573,14 @@ if __name__ == "__main__":
    # data_folder='G:/DataSet/UrbanClassification/data/train_visit'
     #outfolder="G:/DataSet/UrbanClassification/data/train_visit_features"
     #img_folder=r'G:\DataSet\UrbanClassification\data\train_img'
-    #data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\train\train_part'
-    data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\test\visit'
-    outfolder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\test\visit_features_normalized_npy'
-    GenerateVisit2Features(data_folder,outfolder,num_class=9)
+    data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\train\visit'
+    #data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\test\visit'
+    outfolder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\train\visit_features_normalized_npy_bad_days'
+    bad_csv_file=r'G:\programs\BaiDuBigData19-URFC-master\multimodel_analysis\refine_1\bad_pre.csv'
+    manual_feature_file_train='C:/URFC_data/semi_final/train/visit_features_normalized_npy'
+    visit_record2h_train=r'C:\URFC_data\semi_final\train\visit_npy_train_2h'
+    visit_date_data=r'C:\URFC_data\semi_final\train\training_semi_350visit.pkl'
+    #GenerateVisit2Features(data_folder,outfolder,num_class=9,data_csv=bad_csv_file,manual_feature_path=visit_date_data)
+    GenerateVisitDayFeatures(outfolder,num_class=9,data_csv=bad_csv_file,data_pkl=visit_date_data)
     #DataSampleAnalysis(img_folder)
     ##DataNormalization(outfolder)

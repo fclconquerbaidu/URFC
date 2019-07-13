@@ -40,22 +40,22 @@ def visit2array(table):
 
 def visit2array_2h(table):
     strings = table[1]
-    init = np.zeros((7* 26* 12))
-    week_2h=12*7
-    day_2h=12
-    h_2h=0.5
+    init = np.zeros((7* 26* 24))
+    week_2h=24*7
+    day_2h=24
+    h_2h=1
     for string in strings:
         temp = []
         for item in string.split(','):
             temp.append([item[0:8], item[9:].split("|")])
         for date, visit_lst in temp:
-            # x - 第几周
-            # y - 第几天
+            # y - 第几周
+            # x - 第几天
             # z - 几点钟
             # value - 到访的总人数
             x, y = date2position[datestr2dateint[date]]
             for visit in visit_lst: # 统计到访的总人数
-                init[x*week_2h+day_2h*y+int(str2int[visit]*h_2h)] += 1
+                init[y*week_2h+day_2h*x+int(str2int[visit]*h_2h)] += 1
     return init
 
 def visit2array_test():
@@ -108,11 +108,11 @@ def visit2array_valid():
 
 if __name__ == '__main__':
     #out_folder="./data/semi_final/visit_npy/"
-    out_folder=r"C:\URFC_data\semi_final\test\visit_npy_test_2h/"
+    out_folder=r"C:\URFC_data\semi_final\test\visit_npy_test_2h_c/"
     if not os.path.exists(out_folder):
         os.makedirs(out_folder)
 
-    #visit_data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\train\visit'
-    visit_data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\test\visit'
+    visit_data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\train\visit'
+    #visit_data_folder=r'G:\programs\BaiDuBigData19-URFC-master\data\semi_final\test\visit'
     visit2array_train(visit_data_folder,out_folder)
     #visit2array_test()
